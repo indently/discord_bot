@@ -2,6 +2,24 @@ import discord
 import responses
 
 
+# Send a private message
+async def send_private_message(message, user_message):
+    try:
+        response = responses.handle_response(user_message)  # [1:] Removes the '?'
+        await message.author.send(response)
+    except Exception as e:
+        print(e)
+
+
+# Respond to message in current channel
+async def respond_in_channel(message, user_message):
+    try:
+        response = responses.handle_response(user_message)
+        await message.channel.send(response)
+    except Exception as e:
+        print(e)
+
+
 def run_discord_bot():
     TOKEN = 'YOUR_KEY'
     client = discord.Client()
@@ -26,16 +44,10 @@ def run_discord_bot():
 
         # If the user message contains a '?' in front of the text, it becomes a private message
         if user_message[0] == '?':
-            try:
-                # Send a private message
-                response = responses.handle_response(user_message[1:])  # [1:] Removes the '?'
-                await message.author.send(response)
-            except Exception as e:
-                print("User has not allowed access to private messages.")
+            user_message = user_message[1:]
+            await send_private_message(message, user_message)
         else:
-            # Send a message to the channel
-            response = responses.handle_response(user_message)
-            await message.channel.send(response)
+            await respond_in_channel(message, user_message)
 
     # Remember to run your bot with your personal TOKEN
     client.run(TOKEN)
